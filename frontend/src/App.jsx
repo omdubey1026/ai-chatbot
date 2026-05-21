@@ -75,68 +75,88 @@ function App() {
 
     setLoading(true);
 
-    const res = await fetch(
-      "https://ai-chatbot-g3k3.onrender.com",
-      {
-        method: "POST",
+    try {
 
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
+      const res = await fetch(
+        "https://ai-chatbot-g3k3.onrender.com/chat",
+        {
+          method: "POST",
 
-        body: JSON.stringify({
-          message,
-        }),
-      }
-    );
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
 
-    const data = await res.json();
-
-    let currentText = "";
-
-    const botMessage = {
-      role: "bot",
-      text: "",
-    };
-
-    setChat((prev) => [
-      ...prev,
-      botMessage,
-    ]);
-
-    for (
-      let i = 0;
-      i < data.reply.length;
-      i++
-    ) {
-
-      currentText += data.reply[i];
-
-      await new Promise((resolve) =>
-        setTimeout(resolve, 15)
+          body: JSON.stringify({
+            message,
+          }),
+        }
       );
 
-      setChat((prev) => {
+      const data = await res.json();
 
-        const updatedChat = [
-          ...prev,
-        ];
+      let currentText = "";
 
-        updatedChat[
-          updatedChat.length - 1
-        ].text = currentText;
+      const botMessage = {
+        role: "bot",
+        text: "",
+      };
 
-        return updatedChat;
-      });
+      setChat((prev) => [
+        ...prev,
+        botMessage,
+      ]);
+
+      for (
+        let i = 0;
+        i < data.reply.length;
+        i++
+      ) {
+
+        currentText += data.reply[i];
+
+        await new Promise((resolve) =>
+          setTimeout(resolve, 15)
+        );
+
+        setChat((prev) => {
+
+          const updatedChat = [
+            ...prev,
+          ];
+
+          updatedChat[
+            updatedChat.length - 1
+          ].text = currentText;
+
+          return updatedChat;
+        });
+      }
+
+      const speech =
+        new SpeechSynthesisUtterance(
+          data.reply
+        );
+
+      speech.lang = "en-US";
+
+      window.speechSynthesis.speak(
+        speech
+      );
+
+    } catch (error) {
+
+      console.log(error);
+
+      setChat((prev) => [
+        ...prev,
+        {
+          role: "bot",
+          text:
+            "Error connecting to AI server",
+        },
+      ]);
     }
-    const speech = new SpeechSynthesisUtterance(
-  data.reply
-);
-
-speech.lang = "en-US";
-
-window.speechSynthesis.speak(speech);
 
     setLoading(false);
 
