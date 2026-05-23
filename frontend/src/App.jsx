@@ -78,7 +78,7 @@ function App() {
     try {
 
       const res = await fetch(
-        "https://ai-chatbot-g3k3.onrender.com/chat",
+        "http://localhost:5000/chat",
         {
           method: "POST",
 
